@@ -1,0 +1,20 @@
+4️⃣ Multiple testing problem
+You run 20 independent statistical tests, each with a false positive rate (α) of 0.05.
+	•	Compute the probability of getting at least one false positive among all tests.
+
+⸻
+
+5️⃣ Non-parametric data: number of siblings
+In a class of 30 students, the number of siblings follows a Poisson distribution with mean 1.6.
+	•	Simulate 30 values.
+	•	Plot a histogram.
+	•	Calculate the median and interquartile range (IQR).
+	•	Why might a non-parametric test be more appropriate here?
+
+⸻
+
+6️⃣ Paired data: pre- and post-intervention
+Reaction times (ms) are measured before and after an intervention in 20 participants.
+	•	Simulate pre values from a normal distribution (mean 320, SD 40).
+	•	Generate post values that are on average 25 ms faster (with some variability).
+	•	Test if the difference is significant using a paired t-test.
