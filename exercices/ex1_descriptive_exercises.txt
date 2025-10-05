@@ -1,0 +1,18 @@
+1️⃣ Reaction times
+A neuroscientist records five reaction times (in ms):
+220, 230, 400, 240, 250
+	•	Calculate the mean and median.
+	•	Which measure is more robust to an outlier?
+
+⸻
+
+2️⃣ Expected number of spikes
+A neuron fires with a probability of 0.2 on each of 10 trials.
+	•	Compute the expected number of spikes.
+
+⸻
+
+3️⃣ Coin flipping simulation
+You flip a fair coin 5 times, and repeat this experiment 1000 times.
+	•	Simulate the proportion of heads in each experiment.
+	•	Plot the histogram of these proportions.
