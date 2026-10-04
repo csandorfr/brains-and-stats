@@ -1,0 +1,6 @@
+title: Introduction to Statistics for Neuroscientists
+description: BSc Neuroscience, Imperial College London
+theme: jekyll-theme-minimal
+exclude:
+  - course/
+  - data/

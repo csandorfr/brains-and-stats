@@ -1,79 +1,104 @@
 # ===============================================
-# Empirical p-value (no t-test): "Underfilling" example
+# What a p-value means, by simulation: the Tasty Beer example
 # ===============================================
-# Goal:
-# Understand the meaning of a p-value by simulation instead of formulas.
-# Scenario:
-# A bottling machine is supposed to fill bottles with 0.500 L of liquid.
-# We suspect it might be underfilling (true mean = 0.495 L).
+# These are the SAME ten bottles shown on the lecture slide, so the
+# number this script prints should match the number on the screen.
 #
-# Question:
-# How extreme is our observed sample mean compared to what we'd expect
-# if the machine were working correctly (H0: mean = 0.500)?
+#   H0: the machine fills at least 0.500 L on average
+#   H1: the machine fills less than 0.500 L on average
 #
-# We'll simulate the *sampling distribution* of the mean under H0
-# and calculate the probability (p-value) of getting an observed mean
-# as small or smaller than the one we actually measured.
+# One-sided, because overfilling is not an offence. We decide that
+# before looking at the data.
 # ===============================================
 
-set.seed(123)       # ensures reproducibility (same random numbers each run)
+set.seed(123)   # the simulation below uses random numbers
 
 # ------------------------------------------------
-# 1. Define parameters
+# 1. The data
 # ------------------------------------------------
-mu0 <- 0.500        # true mean under the null hypothesis (H0)
-mu1 <- 0.495        # actual mean under the alternative (H1, underfilling)
-sd  <- 0.01         # standard deviation (10 mL variation per bottle)
-n   <- 10           # sample size (we test 10 bottles)
+fill <- c(0.499, 0.488, 0.478, 0.508, 0.490,
+          0.504, 0.488, 0.502, 0.508, 0.506)
+
+mu0 <- 0.500            # the value under H0
+n   <- length(fill)     # 10 bottles
+obs <- mean(fill)       # 0.4971
+s   <- sd(fill)         # 0.0104
+
+cat("Observed mean =", round(obs, 4), "L\n")
+cat("Sample SD     =", round(s, 4), "L\n")
+cat("Shortfall     =", round((mu0 - obs) * 1000, 1), "mL per bottle\n\n")
 
 # ------------------------------------------------
-# 2. Simulate sampling distribution under H0
+# 2. Simulate the sampling distribution under H0
 # ------------------------------------------------
-# Imagine we repeat the bottling experiment 10,000 times under H0 (machine works fine)
-# Each time, we take 10 bottles and compute their sample mean.
-xbar_H0 <- replicate(10000, mean(rnorm(n, mean = mu0, sd = sd)))
+# If the machine were honest, what sample means would ten bottles give?
+# Repeat the inspection 100,000 times on a virtual honest machine.
+xbar_H0 <- replicate(100000, mean(rnorm(n, mean = mu0, sd = s)))
 
 # ------------------------------------------------
-# 3. Simulate one "observed" sample under H1
+# 3. The empirical p-value
 # ------------------------------------------------
-# Suppose the machine *is* underfilling slightly (mean = 0.495).
-# We take 10 bottles and compute the average fill.
-obs <- mean(rnorm(n, mean = mu1, sd = sd))
-
-# ------------------------------------------------
-# 4. Compute the empirical p-value
-# ------------------------------------------------
-# The p-value is the probability, under H0, of getting a mean
-# *less than or equal to* our observed mean.
-# (We’re doing a one-sided test for underfilling.)
+# The proportion of honest-machine inspections that came out as low as
+# ours, or lower.
 pval <- mean(xbar_H0 <= obs)
+cat("Empirical p-value =", round(pval, 3), "\n\n")
 
 # ------------------------------------------------
-# 5. Visualize the result
+# 4. The same answer from the formula
 # ------------------------------------------------
-# The histogram shows the sampling distribution under H0.
-# The red line shows the observed sample mean under H1.
-# The shaded area to the left (conceptually) represents the p-value.
+# t.test() does this analytically. The two agree closely; the small
+# difference is because the simulation treats the SD as known while the
+# t-test allows for the fact that we estimated it from 10 bottles.
+print(t.test(fill, mu = mu0, alternative = "less"))
+
+# The two-sided interval, which is what you would report in a paper:
+cat("95% CI:", round(t.test(fill, mu = mu0)$conf.int, 4), "\n")
+
+# ------------------------------------------------
+# 5. Picture
+# ------------------------------------------------
 hist(xbar_H0,
-     breaks = 40,
+     breaks = 60,
      col = "lightblue",
      border = "white",
-     main = paste("Empirical p-value ≈", round(pval, 4)),
-     xlab = "Sample mean (under H₀)",
+     main = paste("Sample means from an HONEST machine (p =", round(pval, 3), ")"),
+     xlab = "Mean of 10 bottles (L)",
      ylab = "Frequency")
 
-abline(v = obs, col = "red", lwd = 2)
+abline(v = obs, col = "red", lwd = 3)               # what we actually saw
+abline(v = mu0, col = "grey40", lwd = 2, lty = 2)   # the advertised 0.500
+
+legend("topright",
+       legend = c("Observed mean", "H0: 0.500 L"),
+       col = c("red", "grey40"), lwd = c(3, 2), lty = c(1, 2), bty = "n")
 
 # ------------------------------------------------
-# 6. Interpretation
+# 6. The verdict, and why it is not the whole story
 # ------------------------------------------------
-# - The histogram represents all possible sample means if H₀ were true (μ = 0.500).
-# - Our observed mean (red line) came from an underfilled batch (μ = 0.495).
-# - The p-value (~0.02, for example) tells us how rare such a low mean is
-#   *if* the machine were working correctly.
-# - A small p-value (e.g., < 0.05) → we reject H₀ → evidence of underfilling.
+# p is about 0.20: if the machine were honest, a sample this low would
+# turn up about one time in five. Not unusual enough to reject H0, so
+# on this evidence Tasty Beer is not convicted.
+#
+# But "not guilty" is not "innocent". Ask the other question: if the
+# machine really were underfilling by 5 mL, would ten bottles have
+# caught it?
+cat("\n--- How good was this inspection? ---\n")
+print(power.t.test(n = 10, delta = 0.005, sd = 0.01, sig.level = 0.05,
+                   type = "one.sample", alternative = "one.sided"))
+
+# Power is about 0.43. Even if the machine WERE cheating by 5 mL, this
+# inspection would have missed it more often than not.
+#
+# How many bottles would they have needed?
+cat("\n--- How many bottles for an 80% chance? ---\n")
+print(power.t.test(delta = 0.005, sd = 0.01, power = 0.8, sig.level = 0.05,
+                   type = "one.sample", alternative = "one.sided"))
+
+# About 27. They tested 10.
+#
+# TRY THIS: in section 1 write fill <- rep(fill, 3) to pretend they
+# tested 30 bottles with the same readings, then rerun. The shortfall
+# has not changed at all. Watch the p-value, and work out why.
+#
+# Take-home: absence of evidence is not evidence of absence.
 # ===============================================
-
-# Optional: print summary
-cat("Observed mean =", round(obs, 4),
-    "\nEmpirical p-value =", round(pval, 4), "\n")

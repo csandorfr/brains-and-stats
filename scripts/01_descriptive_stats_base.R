@@ -11,6 +11,38 @@
 # - How skewed data affect these measures
 
 # ------------------------------------------------
+# 0. Read a real data file
+# ------------------------------------------------
+# Almost all of your own data will arrive as a file, so start there.
+# read.csv() turns a comma-separated file into a data frame.
+# If this errors, your working directory is wrong: in RStudio use
+# Session > Set Working Directory > To Project Directory, or run
+# setwd("path/to/brains-and-stats").
+
+rt <- read.csv("data/reaction_times.csv")
+
+head(rt)          # first six rows
+str(rt)           # what type is each column?
+summary(rt)       # a quick numerical overview
+table(rt$group)   # how many animals per group?
+
+# Summaries by group. tapply() applies a function within each group.
+tapply(rt$rt_ms, rt$group, mean)
+tapply(rt$rt_ms, rt$group, median)
+tapply(rt$rt_ms, rt$group, sd)
+
+# Look at it before you summarise it.
+boxplot(rt_ms ~ group, data = rt,
+        col = c("skyblue", "coral"),
+        main = "Reaction time by group",
+        xlab = "Group", ylab = "Reaction time (ms)")
+
+# With only 20 per group, show every animal as well as the summary:
+stripchart(rt_ms ~ group, data = rt, vertical = TRUE,
+           method = "jitter", pch = 16, add = TRUE,
+           col = rgb(0, 0, 0, 0.4))
+
+# ------------------------------------------------
 # 1. Define a simple function to compute the MODE
 # ------------------------------------------------
 # R does not have a built-in mode() function for numeric data,

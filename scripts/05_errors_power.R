@@ -33,17 +33,16 @@ text(200, 6, "Doubling n → MOE / √2", col = "darkgreen", cex = 0.9)
 # -----------------------------------------------------
 # 2. Power vs sample size (for different effect sizes)
 # -----------------------------------------------------
-# Define a small helper function to approximate power
-# for a two-sample test with equal group sizes.
-# d = Cohen’s d (standardized effect size)
-# α = 0.05 (two-sided test)
+# R has this built in. power.t.test() is the function you will actually
+# use; it is exact, it handles one-sample, two-sample and paired designs,
+# and it solves for whichever quantity you leave out.
+#
+#   power.t.test(n = 20, delta = 0.5, sd = 1)          -> power
+#   power.t.test(delta = 0.5, sd = 1, power = 0.8)     -> n
 
 power_two <- function(n, d, alpha = 0.05) {
-  se <- sqrt(2 / n)                   # standard error for two groups (SD = 1)
-  z_crit <- qnorm(1 - alpha / 2)      # critical z-value for α = 0.05
-  z_effect <- abs(d) / se             # signal-to-noise ratio (effect / SE)
-  power <- pnorm(z_effect - z_crit)   # probability of detecting true effect
-  return(power)
+  power.t.test(n = n, delta = d, sd = 1, sig.level = alpha,
+               type = "two.sample")$power
 }
 
 # Create a grid of sample sizes
@@ -54,7 +53,7 @@ plot(n_grid, sapply(n_grid, power_two, d = 0.3),
      type = "l", lwd = 2, col = "orange",
      ylim = c(0, 1),
      xlab = "Sample size per group (n)",
-     ylab = "Power (1 - β)",
+     ylab = "Power (1 - beta)",
      main = "Power vs. Sample Size")
 
 # Add more lines for other effect sizes
@@ -80,4 +79,32 @@ legend("bottomright",
 #     → Big effects (d=0.8) need fewer participants.
 #     → Small effects (d=0.3) require much larger samples.
 # - Common goal: 80% power (dashed line).
+# =====================================================
+
+# -----------------------------------------------------
+# 4. The question you actually ask when planning a study
+# -----------------------------------------------------
+# "How many animals per group do I need?" Give power.t.test everything
+# except n, and it solves for n.
+
+for (d in c(0.3, 0.5, 0.8)) {
+  res <- power.t.test(delta = d, sd = 1, power = 0.8,
+                      sig.level = 0.05, type = "two.sample")
+  cat(sprintf("d = %.1f  ->  %3.0f per group for 80%% power\n", d, ceiling(res$n)))
+}
+
+# Halving the effect size roughly QUADRUPLES the sample you need.
+# Small effects are not cheaper to study, they are far more expensive.
+
+# -----------------------------------------------------
+# 5. A warning about post-hoc power
+# -----------------------------------------------------
+# Do NOT compute power after a null result using your own observed
+# effect size. "Observed power" is a deterministic function of the
+# p-value, so it adds no information at all: a non-significant result
+# always gives low observed power, by construction.
+#
+# Power is a planning tool. The honest thing to report after a null
+# result is the confidence interval, which says what effect sizes your
+# study could and could not rule out.
 # =====================================================

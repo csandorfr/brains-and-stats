@@ -9,7 +9,7 @@
 
 
 # ---------------------------------------------------------------
-# 1. Reaction times: Mean vs Median
+# Q2. Reaction times: mean vs median
 # ---------------------------------------------------------------
 # Suppose we record reaction times (in milliseconds) for 5 participants.
 # One participant was unusually slow (400 ms), creating an outlier.
@@ -29,7 +29,7 @@ median(rt)
 
 
 # ---------------------------------------------------------------
-# 2. Expected spikes: Simple Binomial expectation
+# Q3. Expected spikes: binomial expectation
 # ---------------------------------------------------------------
 # Suppose a neuron fires with probability p = 0.2 per trial,
 # and we observe it for n = 10 independent trials.
@@ -48,7 +48,7 @@ n * p   # Theoretical mean = 2 spikes
 
 
 # ---------------------------------------------------------------
-# 3. Proportion of heads: Sampling variability
+# Q4. Proportion of heads: sampling variability
 # ---------------------------------------------------------------
 # Example of random sampling: flipping a fair coin (p = 0.5) 5 times.
 # We simulate 1000 experiments of 5 flips each and calculate the
@@ -68,4 +68,24 @@ hist(props,
 # - As the number of flips increases, the distribution becomes narrower around 0.5.
 # - This demonstrates sampling variability and the law of large numbers:
 #   as sample size increases, the sample mean approaches the true mean (p).
+# ===============================================================
+
+# ---------------------------------------------------------------
+# Q4 continued: what changes with 50 flips instead of 5?
+# ---------------------------------------------------------------
+props50 <- rbinom(1000, size = 50, prob = 0.5) / 50
+
+par(mfrow = c(1, 2))
+hist(props, breaks = seq(0, 1, 0.1), main = "5 flips",
+     xlab = "Proportion of heads", col = "lightblue", border = "black")
+hist(props50, breaks = seq(0, 1, 0.1), main = "50 flips",
+     xlab = "Proportion of heads", col = "lightgreen", border = "black")
+par(mfrow = c(1, 1))
+
+cat("SD of proportion, 5 flips :", round(sd(props), 3), "\n")
+cat("SD of proportion, 50 flips:", round(sd(props50), 3), "\n")
+
+# With 50 flips the histogram is smoother and much narrower. The spread
+# shrinks with the square root of the number of flips, which is the law
+# of large numbers and the central limit theorem working together.
 # ===============================================================

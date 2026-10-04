@@ -81,3 +81,74 @@ print(paste("Cohen's d =", round(d, 3)))
 # - A significant p-value doesn’t mean the effect is important —
 #   always report and interpret the *effect size*.
 # ===============================================================
+
+# ---------------------------------------------------------------
+# 5) Doing the correction in R: p.adjust()
+# ---------------------------------------------------------------
+# You almost never apply Bonferroni by hand. p.adjust() rescales the
+# p-values so you can keep comparing them against 0.05.
+
+set.seed(11)
+
+# A realistic screen: 100 tests, 90 of them null, 10 with a real effect.
+pvals <- c(
+  replicate(90, t.test(rnorm(20, 0, 1), rnorm(20, 0, 1))$p.value),   # nothing there
+  replicate(10, t.test(rnorm(20, 1, 1), rnorm(20, 0, 1))$p.value)    # real effect
+)
+truth <- rep(c(FALSE, TRUE), times = c(90, 10))
+
+bonf <- p.adjust(pvals, method = "bonferroni")   # controls ANY false positive
+bh   <- p.adjust(pvals, method = "BH")           # controls the false DISCOVERY rate
+
+report <- function(p, label) {
+  hits <- p < 0.05
+  cat(sprintf("%-12s  hits %3d   true %2d   false %2d\n",
+              label, sum(hits), sum(hits & truth), sum(hits & !truth)))
+}
+
+cat("\n100 tests, 10 of which have a real effect:\n\n")
+report(pvals, "uncorrected")
+report(bonf,  "Bonferroni")
+report(bh,    "BH / FDR")
+
+# Read the three rows against each other:
+# - Uncorrected picks up real effects but drags in several false ones.
+# - Bonferroni almost never admits a false positive, and pays for it by
+#   missing real effects. It is the right choice when one false claim
+#   would be costly.
+# - BH sits in between and is the sensible default for a screen with
+#   thousands of tests, where you accept that a known fraction of your
+#   hits will be wrong.
+#
+# None of this helps if you do not count honestly. Every test you ran
+# belongs in the correction, including the models you fitted and threw
+# away.
+
+# ---------------------------------------------------------------
+# 6) Effect size and confidence interval together
+# ---------------------------------------------------------------
+# A p-value says whether. An effect size says how much. Report the
+# difference in its own units, with an interval, every time.
+
+fit  <- t.test(groupA, groupB)          # control minus treated
+drop <- mean(groupA) - mean(groupB)     # how much faster the treated group was
+
+cat(sprintf("\nReaction time fell by %.1f ms, 95%% CI %.1f to %.1f ms, d = %.2f, p = %.3f\n",
+            drop, fit$conf.int[1], fit$conf.int[2],
+            abs(cohens_d(groupA, groupB)), fit$p.value))
+
+if (fit$conf.int[1] < 0 && fit$conf.int[2] > 0) {
+  cat("The interval crosses zero, so a reduction of zero is still compatible\n")
+  cat("with these data. Report that honestly rather than calling it a null result.\n")
+}
+
+# This is the sentence to put in a paper: a difference in the units you
+# measured, an interval around it, and only then a p-value. The interval
+# tells a reader what the study could and could not rule out, which is
+# exactly what a bare p-value hides.
+#
+# TRY THIS: raise n from 50 to 200 in section 3 and rerun. The effect
+# size barely moves; the interval tightens and the p-value collapses.
+# That is the difference between how big an effect is and how sure you
+# are about it.
+# ===============================================================

@@ -58,27 +58,38 @@ barplot(counts,
 
 
 # ------------------------------------------------
-# 3. Pie chart: Proportion of favorite movie genres
+# 3. Pie chart: proportion of cell types in a sample
 # ------------------------------------------------
 # Pie charts show how each category contributes to a whole.
-# Best used when the total (100%) is meaningful and the number of categories is small.
+# Best when the total (100%) is meaningful and there are few categories.
 
-pie_counts <- c(4, 4, 1, 6, 5)
-genres <- c("SciFi", "Comedy", "Drama", "Romance", "Action")
+pie_counts <- c(62, 18, 12, 8)
+cell_types <- c("Pyramidal", "Astrocyte", "Interneuron", "Microglia")
 
 # Calculate % for each category
-labels <- paste(genres, "(", round(100 * pie_counts / sum(pie_counts)), "%)", sep = "")
+labels <- paste(cell_types, " (", round(100 * pie_counts / sum(pie_counts)), "%)", sep = "")
 
 # Draw pie chart
 pie(pie_counts,
     labels = labels,
-    col = rainbow(length(pie_counts)),  # rainbow colors for variety
-    main = "Favorite Movie Genres")
+    col = c("#4C72B0", "#DD8452", "#55A868", "#C44E52"),
+    main = "Cell types recovered from one cortical sample")
+
+# The same data as a bar chart, for comparison:
+barplot(pie_counts,
+        names.arg = cell_types,
+        las = 2,
+        col = "#4C72B0",
+        main = "The same counts as bars",
+        ylab = "Number of cells")
 
 # Interpretation:
-# - Romance and Action are the largest slices.
-# - The sum of all slices equals 100%.
-# - Avoid using pie charts when there are many categories or small differences.
+# - Both plots contain exactly the same information.
+# - The eye compares LENGTHS far more accurately than ANGLES, so the bar
+#   chart lets you read off the smaller categories and rank them. On the
+#   pie, astrocytes and interneurons are hard to tell apart.
+# - Use a pie only when the "part of a whole" story is the point and
+#   there are three or four categories. Otherwise use bars.
 
 
 # ------------------------------------------------
@@ -120,5 +131,10 @@ boxplot(reaction_time ~ group,
 #
 # In practice:
 # - Always start with a histogram or boxplot for numeric data.
-# - Use bar or pie charts for categorical variables.
+# - Use bar charts for categorical variables; reach for a pie only
+#   when "part of a whole" is the actual message.
+# - A bar chart of group MEANS with an error bar hides the distribution.
+#   With fewer than about 20 points per group, plot the points instead:
+#       stripchart(rt_ms ~ group, data = rt, vertical = TRUE,
+#                  method = "jitter", pch = 16)
 # - Check for skew or outliers before doing statistical tests.

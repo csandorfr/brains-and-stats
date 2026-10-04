@@ -1,0 +1,26 @@
+Quick Check - Session 1
+(numbering matches the slide)
+
+Q1  Why do we need statistics in neuroscience?
+    Discussion question. Think about three separate sources of variation:
+    biological differences between animals, measurement noise, and small
+    samples.
+
+Q2  Reaction times
+    A neuroscientist records five reaction times (ms): 220, 230, 400, 240, 250
+    - Calculate the mean and the median.
+    - Which is more robust to the outlier?
+    - Which would you report, and why?
+
+Q3  Expected number of spikes
+    A neuron fires with probability 0.2 on each of 10 independent trials.
+    - Compute the expected number of spikes.
+
+Q4  Coin flipping simulation
+    You flip a fair coin 5 times and record the proportion of heads, then
+    repeat the experiment 1000 times.
+    - Simulate the proportion of heads in each experiment.
+    - Plot the histogram of these proportions.
+    - What changes if you flip 50 times instead of 5?
+
+Solutions: ex1_session1_solutions.R

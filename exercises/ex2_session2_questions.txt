@@ -1,0 +1,36 @@
+Quick Check - Session 2
+(numbering matches the slide)
+
+Q1  Hypotheses and p-values
+    You compare hippocampal volume in patients and controls.
+    - State the null hypothesis.
+    - Put p = 0.01 into words, WITHOUT using the phrase "probability the
+      hypothesis is true".
+
+Q2  Multiple testing
+    You run 20 independent tests, each with a false positive rate of 0.05.
+    - Compute the probability of at least one false positive.
+    - What threshold would a Bonferroni correction set?
+    - Why might an effect size be more useful than a p-value here?
+
+Q3a Non-parametric data: number of siblings
+    In a class of 30 students, the number of siblings follows a Poisson
+    distribution with mean 1.6.
+    - Simulate 30 values and plot a histogram.
+    - Calculate the median and interquartile range.
+    - Why might a non-parametric test be more appropriate here?
+
+Q3b Paired data: pre- and post-intervention
+    Reaction times (ms) are measured before and after an intervention in
+    20 participants.
+    - Simulate pre values from a normal distribution (mean 320, SD 40).
+    - Generate post values on average 25 ms faster, with variability.
+    - Test whether the difference is significant using a paired t-test.
+    - Why is a paired test the right choice here?
+
+Q4  Underpowered studies
+    Why is an underpowered study problematic in neuroscience?
+    Discussion question. Think about what happens to the results it
+    produces, in both directions.
+
+Solutions: ex2_session2_solutions.R
